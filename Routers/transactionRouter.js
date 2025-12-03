@@ -60,6 +60,25 @@ router.post("/issue-book", verifyToken, async (req, res) => {
 });
 
 // -----------------------------
+// Get My Issued Books (for regular users)
+// -----------------------------
+router.get("/my-issued-books", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id; // Get user ID from token
+    
+    // Find all transactions for this user that haven't been returned
+    const transactions = await Transaction.find({ 
+      userId: userId,
+      actualReturnDate: null 
+    }).populate("bookId");
+    
+    res.json(transactions);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching issued books", error: err.message });
+  }
+});
+
+// -----------------------------
 // Return Book
 // -----------------------------
 router.post("/return-book", verifyToken, async (req, res) => {
@@ -73,6 +92,12 @@ router.post("/return-book", verifyToken, async (req, res) => {
     const transaction = await Transaction.findById(transactionId).populate("bookId");
     if (!transaction) {
       return res.status(404).json({ message: "Transaction not found" });
+    }
+
+    // Check if user is authorized to return this book
+    // Users can only return their own books, unless they're admin
+    if (req.user.role !== "admin" && transaction.userId.toString() !== req.user.id) {
+      return res.status(403).json({ message: "You can only return your own books" });
     }
 
     if (transaction.actualReturnDate) {

@@ -17,7 +17,9 @@ function verifyToken(req, res, next) {
 }
 
 function adminOnly(req, res, next) {
-    if (req.user.role !== "admin") {
+    //   const decoded = jwt.verify(token, "SECRET123");
+    //     req.user = decoded;   // attach user data {id, role}
+    if (req.user.role !=="admin") {
         return res.status(403).json({ msg: "Admin access required" });
     }
     next();
