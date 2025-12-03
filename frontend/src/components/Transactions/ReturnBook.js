@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import api from '../../services/api';
 import { formatDate, calculateFine } from '../../utils/helpers';
+import { useAuth } from '../../context/AuthContext';
 import './Transactions.css';
 
 const ReturnBook = () => {
   const navigate = useNavigate();
+  const { isAdmin, role } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [formData, setFormData] = useState({
@@ -23,15 +25,44 @@ const ReturnBook = () => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [userId, setUserId] = useState('');
 
+  const loadMyIssuedBooks = async () => {
+    setSearchLoading(true);
+    setError('');
+    try {
+      const response = await api.get('/my-issued-books');
+      if (response.data.length === 0) {
+        setError('No issued books found.');
+        setTransactions([]);
+      } else {
+        setTransactions(response.data);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Unable to fetch your issued books. Please try again.');
+      setTransactions([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
   useEffect(() => {
-    // Try to get user transactions if userId is available
-    // For now, we'll use a search approach
-  }, []);
+    // Auto-load books for regular users
+    if (role && role !== 'admin') {
+      loadMyIssuedBooks();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role]);
 
   const handleSearch = async (e) => {
     e.preventDefault();
     setError('');
     
+    // For regular users, just reload their books
+    if (!isAdmin()) {
+      loadMyIssuedBooks();
+      return;
+    }
+
+    // For admins, search by userId
     if (!userId) {
       setError('Please enter User ID to search for issued books.');
       return;
@@ -39,8 +70,7 @@ const ReturnBook = () => {
 
     setSearchLoading(true);
     try {
-      // Try to get issued books - this endpoint is admin-only, but we'll try
-      // In a production system, you'd want a user-specific endpoint
+      // Admin can use the admin endpoint
       const response = await api.get('/issued-books');
       const userTransactions = response.data.filter(t => {
         const transactionUserId = t.userId?._id || t.userId?.toString() || t.userId;
@@ -54,11 +84,10 @@ const ReturnBook = () => {
         setTransactions(userTransactions);
       }
     } catch (err) {
-      // If admin endpoint fails (403), show appropriate message
       if (err.response?.status === 403) {
-        setError('Access denied. Admin access required to view all transactions. Please contact administrator.');
+        setError('Access denied. Admin access required to view all transactions.');
       } else {
-        setError('Unable to fetch transactions. Please try again or contact administrator.');
+        setError('Unable to fetch transactions. Please try again.');
       }
       setTransactions([]);
     } finally {
@@ -143,22 +172,37 @@ const ReturnBook = () => {
         
         {error && <div className="error-message">{error}</div>}
 
-        <form onSubmit={handleSearch} style={{ marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '2px solid #ddd' }}>
-          <div className="form-group">
-            <label htmlFor="userId">User ID: *</label>
-            <input
-              type="text"
-              id="userId"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              required
-              placeholder="Enter user ID to find issued books"
-            />
+        {isAdmin() && (
+          <form onSubmit={handleSearch} style={{ marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '2px solid #ddd' }}>
+            <div className="form-group">
+              <label htmlFor="userId">User ID: *</label>
+              <input
+                type="text"
+                id="userId"
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+                required
+                placeholder="Enter user ID to find issued books"
+              />
+            </div>
+            <button type="submit" disabled={searchLoading} className="submit-btn">
+              {searchLoading ? 'Searching...' : 'Search Issued Books'}
+            </button>
+          </form>
+        )}
+
+        {!isAdmin() && (
+          <div style={{ marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '2px solid #ddd' }}>
+            <button 
+              type="button" 
+              onClick={loadMyIssuedBooks} 
+              disabled={searchLoading} 
+              className="submit-btn"
+            >
+              {searchLoading ? 'Loading...' : 'Refresh My Issued Books'}
+            </button>
           </div>
-          <button type="submit" disabled={searchLoading} className="submit-btn">
-            {searchLoading ? 'Searching...' : 'Search Issued Books'}
-          </button>
-        </form>
+        )}
 
         {transactions.length > 0 && (
           <div className="table-container" style={{ marginBottom: '2rem' }}>
