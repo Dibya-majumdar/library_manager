@@ -13,6 +13,8 @@ const cookieParser=require("cookie-parser");
 
 app.use(express.json());
 app.use(cookieParser());
+require('dotenv').config();
+
 
 app.use(cors({
     origin:"http://localhost:3001",
@@ -30,7 +32,7 @@ app.use("/", reportsRouter);
 const start=async ()=>{
     try{
         await connectDb();
-        app.listen(3000,()=>{
+        app.listen(process.env.PORT,()=>{
             console.log("Server is listing in port no 3000");
         });
 

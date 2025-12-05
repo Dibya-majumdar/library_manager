@@ -184,7 +184,7 @@ function App() {
           <Route
             path="/reports/issued-books"
             element={
-              <ProtectedRoute requireAdmin={true}>
+              <ProtectedRoute>
                 <Layout>
                   <IssuedBooks />
                 </Layout>
@@ -194,7 +194,7 @@ function App() {
           <Route
             path="/reports/returned-books"
             element={
-              <ProtectedRoute requireAdmin={true}>
+              <ProtectedRoute>
                 <Layout>
                   <ReturnedBooks />
                 </Layout>
@@ -204,7 +204,7 @@ function App() {
           <Route
             path="/reports/fines"
             element={
-              <ProtectedRoute requireAdmin={true}>
+              <ProtectedRoute>
                 <Layout>
                   <Fines />
                 </Layout>
@@ -214,7 +214,7 @@ function App() {
           <Route
             path="/reports"
             element={
-              <ProtectedRoute requireAdmin={true}>
+              <ProtectedRoute>
                 <Navigate to="/reports/issued-books" replace />
               </ProtectedRoute>
             }
@@ -237,5 +237,6 @@ function App() {
 }
 
 export default App;
+
 
 

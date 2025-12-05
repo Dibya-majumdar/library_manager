@@ -20,7 +20,8 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="navbar-content">
         <div className="navbar-brand">
-          <Link to="/">Library Management System</Link>
+          {/* <Link to="/">Library Management System</Link> */}
+          <h1>Library Management System</h1>
         </div>
         
         <div className="navbar-links">
@@ -43,5 +44,6 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
 
 

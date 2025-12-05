@@ -80,34 +80,33 @@ const Sidebar = () => {
           </Link>
         </div>
 
-        {role === 'admin' && (
-          <div className="nav-section">
-            <h3>Reports</h3>
-            <Link 
-              to="/reports/issued-books" 
-              className={isActive('/reports/issued-books') ? 'active' : ''}
-            >
-              Issued Books
-            </Link>
-            <Link 
-              to="/reports/returned-books" 
-              className={isActive('/reports/returned-books') ? 'active' : ''}
-            >
-              Returned Books
-            </Link>
-            <Link 
-              to="/reports/fines" 
-              className={isActive('/reports/fines') ? 'active' : ''}
-            >
-              Fines
-            </Link>
-          </div>
-        )}
+        <div className="nav-section">
+          <h3>Reports</h3>
+          <Link 
+            to="/reports/issued-books" 
+            className={isActive('/reports/issued-books') ? 'active' : ''}
+          >
+            Issued Books
+          </Link>
+          <Link 
+            to="/reports/returned-books" 
+            className={isActive('/reports/returned-books') ? 'active' : ''}
+          >
+            Returned Books
+          </Link>
+          <Link 
+            to="/reports/fines" 
+            className={isActive('/reports/fines') ? 'active' : ''}
+          >
+            Fines
+          </Link>
+        </div>
       </nav>
     </aside>
   );
 };
 
 export default Sidebar;
+
 
 

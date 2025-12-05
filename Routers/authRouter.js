@@ -4,6 +4,7 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+
 // LOGIN
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;
@@ -17,7 +18,7 @@ router.post("/login", async (req, res) => {
 
         const token = jwt.sign(
             { id: user._id,role: user.role,  },//role: user.role
-            "SECRET123",
+            process.env.JWT_SECRET_KEY,
             { expiresIn: "7d" }
         );
         res.cookie("token",token);
