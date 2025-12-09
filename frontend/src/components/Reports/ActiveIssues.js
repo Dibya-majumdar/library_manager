@@ -3,22 +3,22 @@ import api from '../../services/api';
 import { formatDate } from '../../utils/helpers';
 import './Reports.css';
 
-const ReturnedBooks = () => {
+const ActiveIssues = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    loadReturnedBooks();
+    loadActiveIssues();
   }, []);
 
-  const loadReturnedBooks = async () => {
+  const loadActiveIssues = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/returned-books');
+      const response = await api.get('/issued-books');
       setTransactions(response.data);
     } catch (err) {
-      setError(err.response?.data?.msg || 'Error loading returned books. Please try again.');
+      setError(err.response?.data?.msg || 'Error loading active issues. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -28,7 +28,7 @@ const ReturnedBooks = () => {
     return (
       <div className="page-container">
         <div className="form-container">
-          <h2>Returned Books</h2>
+          <h2>Active Issues</h2>
           <div>Loading...</div>
         </div>
       </div>
@@ -38,42 +38,32 @@ const ReturnedBooks = () => {
   return (
     <div className="page-container">
       <div className="form-container">
-        <h2>Returned Books Report</h2>
+        <h2>Active Issues</h2>
         
         {error && <div className="error-message">{error}</div>}
 
         {transactions.length === 0 ? (
-          <div>No returned books found.</div>
+          <div>No active issues found.</div>
         ) : (
           <div className="table-container">
             <table>
               <thead>
                 <tr>
-                  <th>Book Name</th>
-                  <th>Author</th>
-                  <th>Serial No</th>
-                  <th>User ID</th>
-                  <th>Issue Date</th>
-                  <th>Expected Return Date</th>
-                  <th>Actual Return Date</th>
-                  <th>Fine Amount</th>
-                  <th>Fine Paid</th>
-                  <th>Remarks</th>
+                  <th>Serial No Book/Movie</th>
+                  <th>Name of Book/Movie</th>
+                  <th>Membership Id</th>
+                  <th>Date of Issue</th>
+                  <th>Date of return</th>
                 </tr>
               </thead>
               <tbody>
                 {transactions.map((transaction) => (
                   <tr key={transaction._id}>
-                    <td>{transaction.bookName}</td>
-                    <td>{transaction.authorName}</td>
                     <td>{transaction.serialNo}</td>
+                    <td>{transaction.bookName}</td>
                     <td>{transaction.userId?._id || transaction.userId}</td>
                     <td>{formatDate(transaction.issueDate)}</td>
                     <td>{formatDate(transaction.expectedReturnDate)}</td>
-                    <td>{formatDate(transaction.actualReturnDate)}</td>
-                    <td>${transaction.fineAmount || 0}</td>
-                    <td>{transaction.finePaid ? 'Yes' : 'No'}</td>
-                    <td>{transaction.remarks || '-'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -85,9 +75,6 @@ const ReturnedBooks = () => {
   );
 };
 
-export default ReturnedBooks;
-
-
-
+export default ActiveIssues;
 
 

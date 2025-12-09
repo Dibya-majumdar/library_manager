@@ -9,7 +9,8 @@ const AddBook = () => {
     type: 'book',
     category: '',
     serialNo: '',
-    status: 'available'
+    status: 'available',
+    cost: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -29,8 +30,14 @@ const AddBook = () => {
     setSuccess('');
 
     // Validation
-    if (!formData.title || !formData.author || !formData.category || !formData.serialNo) {
+    if (!formData.title || !formData.author || !formData.category || !formData.serialNo || !formData.cost) {
       setError('All fields are mandatory. Please fill in all details.');
+      return;
+    }
+
+    // Validate cost is a positive number
+    if (isNaN(formData.cost) || parseFloat(formData.cost) < 0) {
+      setError('Cost must be a valid positive number.');
       return;
     }
 
@@ -44,7 +51,8 @@ const AddBook = () => {
         type: 'book',
         category: '',
         serialNo: '',
-        status: 'available'
+        status: 'available',
+        cost: ''
       });
     } catch (err) {
       setError(err.response?.data?.msg || 'Error adding book. Please try again.');
@@ -140,6 +148,21 @@ const AddBook = () => {
             />
           </div>
 
+          <div className="form-group">
+            <label htmlFor="cost">Cost: *</label>
+            <input
+              type="number"
+              id="cost"
+              name="cost"
+              value={formData.cost}
+              onChange={handleChange}
+              required
+              min="0"
+              step="0.01"
+              placeholder="Enter cost"
+            />
+          </div>
+
           <button type="submit" disabled={loading} className="submit-btn">
             {loading ? 'Adding...' : 'Add Book'}
           </button>
@@ -150,6 +173,7 @@ const AddBook = () => {
 };
 
 export default AddBook;
+
 
 
 

@@ -2,13 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import { formatDate, getReturnDate, isDateValid, isReturnDateValid } from '../../utils/helpers';
 import './Transactions.css';
 
 const BookIssue = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
   const [books, setBooks] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
   const [formData, setFormData] = useState({
     bookId: '',
     bookName: '',
@@ -21,9 +25,17 @@ const BookIssue = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [usersLoading, setUsersLoading] = useState(false);
 
   useEffect(() => {
     loadBooks();
+    loadCurrentUser();
+    
+    // If admin, load all users for dropdown
+    if (isAdmin()) {
+      loadUsers();
+    }
+    
     // If coming from Book Available with selected book
     if (location.state?.selectedBook) {
       const book = location.state.selectedBook;
@@ -35,7 +47,35 @@ const BookIssue = () => {
         returnDate: getReturnDate(new Date())
       }));
     }
-  }, [location]);
+  }, [location, isAdmin]);
+
+  const loadCurrentUser = async () => {
+    try {
+      const response = await api.get('/me');
+      setCurrentUser(response.data);
+      // Auto-populate user ID for regular users
+      if (!isAdmin() && response.data) {
+        setFormData(prev => ({
+          ...prev,
+          userId: response.data._id
+        }));
+      }
+    } catch (err) {
+      console.error('Error loading current user:', err);
+    }
+  };
+
+  const loadUsers = async () => {
+    try {
+      setUsersLoading(true);
+      const response = await api.get('/users');
+      setUsers(response.data);
+    } catch (err) {
+      setError('Error loading users. Please try again.');
+    } finally {
+      setUsersLoading(false);
+    }
+  };
 
   const loadBooks = async () => {
     try {
@@ -178,16 +218,41 @@ const BookIssue = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="userId">User ID: *</label>
-            <input
-              type="text"
-              id="userId"
-              name="userId"
-              value={formData.userId}
-              onChange={handleChange}
-              required
-              placeholder="Enter user ID"
-            />
+            <label htmlFor="userId">
+              {isAdmin() ? 'Select User: *' : 'User: *'}
+            </label>
+            {isAdmin() ? (
+              <select
+                id="userId"
+                name="userId"
+                value={formData.userId}
+                onChange={handleChange}
+                required
+                disabled={usersLoading}
+              >
+                <option value="">Select a user</option>
+                {users.map(user => (
+                  <option key={user._id} value={user._id}>
+                    {user.name} ({user.email})
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <>
+                <input
+                  type="text"
+                  id="userIdDisplay"
+                  value={currentUser ? `${currentUser.name} (${currentUser.email})` : 'Loading...'}
+                  readOnly
+                  style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed' }}
+                />
+                <input
+                  type="hidden"
+                  name="userId"
+                  value={formData.userId}
+                />
+              </>
+            )}
           </div>
 
           <div className="form-group">

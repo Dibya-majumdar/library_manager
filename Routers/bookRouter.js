@@ -6,7 +6,7 @@ const { verifyToken, adminOnly } = require("../middlewares/auth");
 // ADMIN — ADD BOOK
 router.post("/books", verifyToken, adminOnly, async (req, res) => {
     try {
-        const { title, author, type, category, serialNo, status } = req.body;
+        const { title, author, type, category, serialNo, status, cost } = req.body;
 
         // Optional: check if serialNo already exists
         const existingBook = await Book.findOne({ serialNo });
@@ -14,7 +14,7 @@ router.post("/books", verifyToken, adminOnly, async (req, res) => {
             return res.status(400).json({ msg: "Serial number already exists" });
         }
 
-        const book = new Book({ title, author, type, category, serialNo, status });
+        const book = new Book({ title, author, type, category, serialNo, status, cost: cost || 0 });
         await book.save();  // This actually saves in DB
         res.status(201).json(book);
     } catch (err) {

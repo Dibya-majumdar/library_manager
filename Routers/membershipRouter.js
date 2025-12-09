@@ -50,6 +50,18 @@ router.post("/membership", verifyToken, adminOnly, async (req, res) => {
 });
 
 // -----------------------------
+// Get All Memberships (for reports - accessible to all authenticated users)
+// -----------------------------
+router.get("/memberships", verifyToken, async (req, res) => {
+  try {
+    const memberships = await Membership.find().populate("userId");
+    res.json(memberships);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching memberships", error });
+  }
+});
+
+// -----------------------------
 // Get Membership by membership number (Admin only)
 // -----------------------------
 router.get("/membership/:membershipNumber", verifyToken, adminOnly, async (req, res) => {

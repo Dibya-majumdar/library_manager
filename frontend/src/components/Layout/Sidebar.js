@@ -83,22 +83,40 @@ const Sidebar = () => {
         <div className="nav-section">
           <h3>Reports</h3>
           <Link 
-            to="/reports/issued-books" 
-            className={isActive('/reports/issued-books') ? 'active' : ''}
+            to="/reports/master-list-books" 
+            className={isActive('/reports/master-list-books') ? 'active' : ''}
           >
-            Issued Books
+            Master List of Books
           </Link>
           <Link 
-            to="/reports/returned-books" 
-            className={isActive('/reports/returned-books') ? 'active' : ''}
+            to="/reports/master-list-movies" 
+            className={isActive('/reports/master-list-movies') ? 'active' : ''}
           >
-            Returned Books
+            Master List of Movies
           </Link>
           <Link 
-            to="/reports/fines" 
-            className={isActive('/reports/fines') ? 'active' : ''}
+            to="/reports/master-list-memberships" 
+            className={isActive('/reports/master-list-memberships') ? 'active' : ''}
           >
-            Fines
+            Master List of Memberships
+          </Link>
+          <Link 
+            to="/reports/active-issues" 
+            className={isActive('/reports/active-issues') ? 'active' : ''}
+          >
+            Active Issues
+          </Link>
+          <Link 
+            to="/reports/overdue-returns" 
+            className={isActive('/reports/overdue-returns') ? 'active' : ''}
+          >
+            Overdue Returns
+          </Link>
+          <Link 
+            to="/reports/issue-requests" 
+            className={isActive('/reports/issue-requests') ? 'active' : ''}
+          >
+            Issue Requests
           </Link>
         </div>
       </nav>

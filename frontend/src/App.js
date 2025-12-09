@@ -19,6 +19,12 @@ import ReturnBook from './components/Transactions/ReturnBook';
 import FinePay from './components/Transactions/FinePay';
 
 // Report Components
+import MasterListBooks from './components/Reports/MasterListBooks';
+import MasterListMovies from './components/Reports/MasterListMovies';
+import MasterListMemberships from './components/Reports/MasterListMemberships';
+import ActiveIssues from './components/Reports/ActiveIssues';
+import OverdueReturns from './components/Reports/OverdueReturns';
+import IssueRequests from './components/Reports/IssueRequests';
 import IssuedBooks from './components/Reports/IssuedBooks';
 import ReturnedBooks from './components/Reports/ReturnedBooks';
 import Fines from './components/Reports/Fines';
@@ -182,6 +188,66 @@ function App() {
           />
 
           <Route
+            path="/reports/master-list-books"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <MasterListBooks />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/master-list-movies"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <MasterListMovies />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/master-list-memberships"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <MasterListMemberships />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/active-issues"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <ActiveIssues />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/overdue-returns"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <OverdueReturns />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports/issue-requests"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <IssueRequests />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/reports/issued-books"
             element={
               <ProtectedRoute>
@@ -215,7 +281,7 @@ function App() {
             path="/reports"
             element={
               <ProtectedRoute>
-                <Navigate to="/reports/issued-books" replace />
+                <Navigate to="/reports/master-list-books" replace />
               </ProtectedRoute>
             }
           />

@@ -17,8 +17,8 @@ router.post("/login", async (req, res) => {
         if (!match) return res.status(401).json({ msg: "Wrong password" });
 
         const token = jwt.sign(
-            { id: user._id,role: user.role,  },//role: user.role
-            process.env.JWT_SECRET_KEY,
+            { id: user._id, role: user.role },
+            "SECRET123",
             { expiresIn: "7d" }
         );
         res.cookie("token",token);

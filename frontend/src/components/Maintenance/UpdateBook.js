@@ -11,7 +11,8 @@ const UpdateBook = () => {
     type: 'book',
     category: '',
     serialNo: '',
-    status: 'available'
+    status: 'available',
+    cost: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -39,7 +40,8 @@ const UpdateBook = () => {
         type: bookData.type,
         category: bookData.category,
         serialNo: bookData.serialNo,
-        status: bookData.status
+        status: bookData.status,
+        cost: bookData.cost || ''
       });
     } catch (err) {
       setError(err.response?.data?.msg || 'Book not found');
@@ -68,8 +70,14 @@ const UpdateBook = () => {
     }
 
     // Validation
-    if (!formData.title || !formData.author || !formData.category || !formData.serialNo) {
+    if (!formData.title || !formData.author || !formData.category || !formData.serialNo || !formData.cost) {
       setError('All fields are mandatory. Please fill in all details.');
+      return;
+    }
+
+    // Validate cost is a positive number
+    if (isNaN(formData.cost) || parseFloat(formData.cost) < 0) {
+      setError('Cost must be a valid positive number.');
       return;
     }
 
@@ -86,7 +94,8 @@ const UpdateBook = () => {
         type: response.data.type,
         category: response.data.category,
         serialNo: response.data.serialNo,
-        status: response.data.status
+        status: response.data.status,
+        cost: response.data.cost || ''
       });
     } catch (err) {
       setError(err.response?.data?.msg || 'Error updating book. Please try again.');
@@ -197,6 +206,21 @@ const UpdateBook = () => {
             </div>
 
             <div className="form-group">
+              <label htmlFor="cost">Cost: *</label>
+              <input
+                type="number"
+                id="cost"
+                name="cost"
+                value={formData.cost}
+                onChange={handleChange}
+                required
+                min="0"
+                step="0.01"
+                placeholder="Enter cost"
+              />
+            </div>
+
+            <div className="form-group">
               <label htmlFor="status">Status: *</label>
               <select
                 id="status"
@@ -221,6 +245,7 @@ const UpdateBook = () => {
 };
 
 export default UpdateBook;
+
 
 
 
