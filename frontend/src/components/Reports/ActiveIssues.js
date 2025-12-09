@@ -51,7 +51,7 @@ const ActiveIssues = () => {
                 <tr>
                   <th>Serial No Book/Movie</th>
                   <th>Name of Book/Movie</th>
-                  <th>Membership Id</th>
+                  <th>User Id</th>
                   <th>Date of Issue</th>
                   <th>Date of return</th>
                 </tr>

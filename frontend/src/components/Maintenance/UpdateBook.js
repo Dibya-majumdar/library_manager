@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import './Maintenance.css';
 
 const UpdateBook = () => {
   const [searchId, setSearchId] = useState('');
   const [book, setBook] = useState(null);
+  const [books, setBooks] = useState([]);
   const [formData, setFormData] = useState({
     title: '',
     author: '',
@@ -12,7 +13,8 @@ const UpdateBook = () => {
     category: '',
     serialNo: '',
     status: 'available',
-    cost: ''
+    cost: '',
+    quantity: 1
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -21,34 +23,9 @@ const UpdateBook = () => {
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    if (!searchId) {
-      setError('Please enter a book ID');
-      return;
-    }
-
-    setError('');
-    setSuccess('');
-    setSearchLoading(true);
-
-    try {
-      const response = await api.get(`/books/${searchId}`);
-      const bookData = response.data;
-      setBook(bookData);
-      setFormData({
-        title: bookData.title,
-        author: bookData.author,
-        type: bookData.type,
-        category: bookData.category,
-        serialNo: bookData.serialNo,
-        status: bookData.status,
-        cost: bookData.cost || ''
-      });
-    } catch (err) {
-      setError(err.response?.data?.msg || 'Book not found');
-      setBook(null);
-    } finally {
-      setSearchLoading(false);
-    }
+    // With dropdown UI we don't need search by ID submission.
+    // Keep handler present but simply prevent default.
+    return;
   };
 
   const handleChange = (e) => {
@@ -57,6 +34,61 @@ const UpdateBook = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const res = await api.get('/books');
+        setBooks(res.data || []);
+      } catch (err) {
+        console.error('Failed to fetch books for dropdown', err.message || err);
+      }
+    };
+
+    fetchBooks();
+  }, []);
+
+  const handleSelect = (e) => {
+    const id = e.target.value;
+    if (!id) {
+      setBook(null);
+      return;
+    }
+
+    const selected = books.find(b => b._id === id);
+    if (selected) {
+      setBook(selected);
+      setFormData({
+        title: selected.title,
+        author: selected.author,
+        type: selected.type,
+        category: selected.category,
+        serialNo: selected.serialNo,
+        status: selected.status,
+          cost: selected.cost || '',
+          quantity: typeof selected.quantity !== 'undefined' ? selected.quantity : 1
+      });
+    } else {
+      // fallback to fetching single book
+      api.get(`/books/${id}`).then(res => {
+        const bookData = res.data;
+        setBook(bookData);
+        setFormData({
+          title: bookData.title,
+          author: bookData.author,
+          type: bookData.type,
+          category: bookData.category,
+          serialNo: bookData.serialNo,
+          status: bookData.status,
+            cost: bookData.cost || '',
+            quantity: typeof bookData.quantity !== 'undefined' ? bookData.quantity : 1
+        });
+      }).catch(err => {
+        setError(err.response?.data?.msg || 'Book not found');
+        setBook(null);
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -95,7 +127,8 @@ const UpdateBook = () => {
         category: response.data.category,
         serialNo: response.data.serialNo,
         status: response.data.status,
-        cost: response.data.cost || ''
+        cost: response.data.cost || '',
+        quantity: typeof response.data.quantity !== 'undefined' ? response.data.quantity : 1
       });
     } catch (err) {
       setError(err.response?.data?.msg || 'Error updating book. Please try again.');
@@ -114,19 +147,14 @@ const UpdateBook = () => {
 
         <form onSubmit={handleSearch} style={{ marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '2px solid #ddd' }}>
           <div className="form-group">
-            <label htmlFor="searchId">Search by Book ID: *</label>
-            <input
-              type="text"
-              id="searchId"
-              value={searchId}
-              onChange={(e) => setSearchId(e.target.value)}
-              required
-              placeholder="Enter book ID"
-            />
+            <label htmlFor="searchId">Select Book to Update: *</label>
+            <select id="searchId" value={book?._id || ''} onChange={handleSelect} required>
+              <option value="">-- Select book --</option>
+              {books.map(b => (
+                <option key={b._id} value={b._id}>{b.title} — {b.serialNo}</option>
+              ))}
+            </select>
           </div>
-          <button type="submit" disabled={searchLoading} className="submit-btn">
-            {searchLoading ? 'Searching...' : 'Search Book'}
-          </button>
         </form>
 
         {book && (
@@ -217,6 +245,21 @@ const UpdateBook = () => {
                 min="0"
                 step="0.01"
                 placeholder="Enter cost"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="quantity">Quantity / Copies: *</label>
+              <input
+                type="number"
+                id="quantity"
+                name="quantity"
+                value={formData.quantity}
+                onChange={handleChange}
+                required
+                min="0"
+                step="1"
+                placeholder="Enter number of copies"
               />
             </div>
 

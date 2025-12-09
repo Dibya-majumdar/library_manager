@@ -49,7 +49,7 @@ const IssueRequests = () => {
             <table>
               <thead>
                 <tr>
-                  <th>Membership Id</th>
+                  <th>User Id</th>
                   <th>Name of Book/Movie</th>
                   <th>Requested Date</th>
                   <th>Request Fulfilled Date</th>

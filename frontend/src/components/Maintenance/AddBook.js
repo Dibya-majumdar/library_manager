@@ -10,7 +10,8 @@ const AddBook = () => {
     category: '',
     serialNo: '',
     status: 'available',
-    cost: ''
+    cost: '',
+    quantity: 1
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -35,6 +36,12 @@ const AddBook = () => {
       return;
     }
 
+    // Validate quantity
+    if (isNaN(formData.quantity) || parseInt(formData.quantity, 10) < 0) {
+      setError('Quantity must be a non-negative integer.');
+      return;
+    }
+
     // Validate cost is a positive number
     if (isNaN(formData.cost) || parseFloat(formData.cost) < 0) {
       setError('Cost must be a valid positive number.');
@@ -52,7 +59,8 @@ const AddBook = () => {
         category: '',
         serialNo: '',
         status: 'available',
-        cost: ''
+        cost: '',
+        quantity: 1
       });
     } catch (err) {
       setError(err.response?.data?.msg || 'Error adding book. Please try again.');
@@ -160,6 +168,21 @@ const AddBook = () => {
               min="0"
               step="0.01"
               placeholder="Enter cost"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="quantity">Quantity / Copies: *</label>
+            <input
+              type="number"
+              id="quantity"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleChange}
+              required
+              min="0"
+              step="1"
+              placeholder="Enter number of copies"
             />
           </div>
 

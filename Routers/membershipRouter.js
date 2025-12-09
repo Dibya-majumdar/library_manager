@@ -8,7 +8,7 @@ const { verifyToken, adminOnly } = require("../middlewares/auth");
 // -----------------------------
 router.post("/membership", verifyToken, adminOnly, async (req, res) => {
   try {
-    const { userId, type } = req.body;
+    const { userId, type, contactName, phone, aadhar, address } = req.body;
 
     if (!userId || !type) {
       return res.status(400).json({ message: "userId and type are mandatory" });
@@ -36,6 +36,10 @@ router.post("/membership", verifyToken, adminOnly, async (req, res) => {
       userId,
       membershipNumber,
       type,
+      contactName,
+      phone,
+      aadhar,
+      address,
       startDate,
       endDate,
       status: "active",
@@ -54,7 +58,7 @@ router.post("/membership", verifyToken, adminOnly, async (req, res) => {
 // -----------------------------
 router.get("/memberships", verifyToken, async (req, res) => {
   try {
-    const memberships = await Membership.find().populate("userId");
+    const memberships = await Membership.find().populate("userId", "_id name email");
     res.json(memberships);
   } catch (error) {
     res.status(500).json({ message: "Error fetching memberships", error });

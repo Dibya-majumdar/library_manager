@@ -6,7 +6,7 @@ const { verifyToken, adminOnly } = require("../middlewares/auth");
 // ADMIN — ADD BOOK
 router.post("/books", verifyToken, adminOnly, async (req, res) => {
     try {
-        const { title, author, type, category, serialNo, status, cost } = req.body;
+        const { title, author, type, category, serialNo, status, cost, quantity } = req.body;
 
         // Optional: check if serialNo already exists
         const existingBook = await Book.findOne({ serialNo });
@@ -14,7 +14,11 @@ router.post("/books", verifyToken, adminOnly, async (req, res) => {
             return res.status(400).json({ msg: "Serial number already exists" });
         }
 
-        const book = new Book({ title, author, type, category, serialNo, status, cost: cost || 0 });
+        // Validate quantity if provided
+        const qty = typeof quantity !== 'undefined' ? parseInt(quantity, 10) : 1;
+        if (isNaN(qty) || qty < 0) return res.status(400).json({ msg: 'Quantity must be a non-negative integer' });
+
+        const book = new Book({ title, author, type, category, serialNo, status, cost: cost || 0, quantity: qty });
         await book.save();  // This actually saves in DB
         res.status(201).json(book);
     } catch (err) {

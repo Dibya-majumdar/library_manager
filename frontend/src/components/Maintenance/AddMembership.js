@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import './Maintenance.css';
 
@@ -7,6 +7,7 @@ const AddMembership = () => {
     userId: '',
     type: '6months'
   });
+  const [users, setUsers] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,6 +19,20 @@ const AddMembership = () => {
       [name]: value
     }));
   };
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await api.get('/users');
+        setUsers(res.data || []);
+      } catch (err) {
+        // If unauthorized or no users, keep users empty
+        console.error('Could not fetch users for dropdown', err.message || err);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,15 +70,65 @@ const AddMembership = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="userId">User ID: *</label>
-            <input
-              type="text"
+            <label htmlFor="userId">Select User: *</label>
+            <select
               id="userId"
               name="userId"
               value={formData.userId}
               onChange={handleChange}
               required
-              placeholder="Enter user ID"
+            >
+              <option value="">-- Select user --</option>
+              {users.map(u => (
+                <option key={u._id} value={u._id}>{u.name} ({u.email})</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="contactName">Contact Name:</label>
+            <input
+              type="text"
+              id="contactName"
+              name="contactName"
+              value={formData.contactName || ''}
+              onChange={handleChange}
+              placeholder="Enter contact name (optional)"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="phone">Phone:</label>
+            <input
+              type="text"
+              id="phone"
+              name="phone"
+              value={formData.phone || ''}
+              onChange={handleChange}
+              placeholder="Enter phone number"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="aadhar">Aadhaar Card No:</label>
+            <input
+              type="text"
+              id="aadhar"
+              name="aadhar"
+              value={formData.aadhar || ''}
+              onChange={handleChange}
+              placeholder="Enter Aadhaar number"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="address">Address:</label>
+            <textarea
+              id="address"
+              name="address"
+              value={formData.address || ''}
+              onChange={handleChange}
+              placeholder="Enter contact address"
             />
           </div>
 

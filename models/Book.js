@@ -7,7 +7,9 @@ const bookSchema = new mongoose.Schema({
     category: { type: String, required: true },
     serialNo: { type: String, required: true, unique: true },
     status: { type: String, enum: ["available", "issued"], default: "available" },
-    cost: { type: Number, default: 0 }
+    cost: { type: Number, default: 0 },
+    // Number of copies available in library (default 1)
+    quantity: { type: Number, default: 1, min: 0 }
 }, { timestamps: true });
 
 module.exports = mongoose.model("Book", bookSchema);

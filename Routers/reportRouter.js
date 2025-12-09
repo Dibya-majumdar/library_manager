@@ -39,7 +39,10 @@ router.get("/master-list-memberships", verifyToken, async (req, res) => {
 // Active Issues (same as issued-books)
 router.get("/issued-books", verifyToken, async (req, res) => {
   try {
-    const transactions = await Transaction.find({ actualReturnDate: null }).populate("bookId").populate("userId");
+    const query = { actualReturnDate: null };
+    // Non-admin users should see only their own active issues
+    if (req.user.role !== 'admin') query.userId = req.user.id;
+    const transactions = await Transaction.find(query).populate("bookId").populate("userId");
     res.json(transactions);
   } catch (err) {
     res.status(500).json({ message: "Error fetching issued books", error: err.message });
@@ -50,10 +53,12 @@ router.get("/issued-books", verifyToken, async (req, res) => {
 router.get("/overdue-returns", verifyToken, async (req, res) => {
   try {
     const today = new Date();
-    const transactions = await Transaction.find({ 
+    const query = {
       actualReturnDate: null,
       expectedReturnDate: { $lt: today }
-    }).populate("userId");
+    };
+    if (req.user.role !== 'admin') query.userId = req.user.id;
+    const transactions = await Transaction.find(query).populate("userId");
     res.json(transactions);
   } catch (err) {
     res.status(500).json({ message: "Error fetching overdue returns", error: err.message });
@@ -65,7 +70,9 @@ router.get("/issue-requests", verifyToken, async (req, res) => {
   try {
     // For now, we'll return all issued books as issue requests
     // In a real system, this might be a separate collection
-    const transactions = await Transaction.find({ actualReturnDate: null })
+    const query = { actualReturnDate: null };
+    if (req.user.role !== 'admin') query.userId = req.user.id;
+    const transactions = await Transaction.find(query)
       .populate("userId")
       .sort({ createdAt: -1 });
     res.json(transactions);
@@ -76,7 +83,9 @@ router.get("/issue-requests", verifyToken, async (req, res) => {
 
 router.get("/returned-books", verifyToken, async (req, res) => {
   try {
-    const transactions = await Transaction.find({ actualReturnDate: { $ne: null } }).populate("bookId").populate("userId");
+    const query = { actualReturnDate: { $ne: null } };
+    if (req.user.role !== 'admin') query.userId = req.user.id;
+    const transactions = await Transaction.find(query).populate("bookId").populate("userId");
     res.json(transactions);
   } catch (err) {
     res.status(500).json({ message: "Error fetching returned books", error: err.message });
@@ -85,7 +94,9 @@ router.get("/returned-books", verifyToken, async (req, res) => {
 
 router.get("/fines", verifyToken, async (req, res) => {
   try {
-    const fines = await Transaction.find({ fineAmount: { $gt: 0 } }).populate("userId");
+    const query = { fineAmount: { $gt: 0 } };
+    if (req.user.role !== 'admin') query.userId = req.user.id;
+    const fines = await Transaction.find(query).populate("userId");
     res.json(fines);
   } catch (err) {
     res.status(500).json({ message: "Error fetching fines", error: err.message });
